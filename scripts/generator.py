@@ -62,7 +62,7 @@ if __name__ == "__main__":
 openai:
     api_key: <your-api-key-here>
 anthropic:
-    api_key: <key-here>
+    api_key: {os.getenv("ANTHROPIC_API_KEY")}
 
 mcp:
     servers:
