@@ -5,8 +5,9 @@ import os
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
 
-# Generate orchestrator.py
-orchestrator_content = f"""
+def generate_agent_code(config, base_path="generated"):
+    # Generate orchestrator.py
+    orchestrator_content = f"""
 # filepath: /Users/ujjwal/Documents/starkhack/trade-agent/examples/orchestrator.py
 \"\"\"
 This demonstrates creating multiple agents and an orchestrator to coordinate them.
@@ -20,15 +21,15 @@ fast = FastAgent("Orchestrator-Workers")
 
 # Define worker agents
 """
-for agent in config["agents"]:
-    orchestrator_content += f"""
+    for agent in config["agents"]:
+        orchestrator_content += f"""
 @fast.agent(
     name="{agent['agent']}",
     instruction=\"\"\"{agent['agent_instruction']}\"\"\",
     servers={[mcp['mcp_name'] for mcp in agent['mcps']]}
 )
 """
-orchestrator_content += f"""
+    orchestrator_content += f"""
 # Define the orchestrator to coordinate the other agents
 @fast.orchestrator(
     name="orchestrate",
@@ -47,13 +48,13 @@ if __name__ == "__main__":
     asyncio.run(main())
 """
 
-# Write orchestrator.py
-os.makedirs("generated", exist_ok=True)
-with open("generated/orchestrator.py", "w") as orchestrator_file:
-    orchestrator_file.write(orchestrator_content)
+    # Write orchestrator.py
+    os.makedirs(base_path, exist_ok=True)
+    with open(f"{base_path}/orchestrator.py", "w") as orchestrator_file:
+        orchestrator_file.write(orchestrator_content)
 
-# Generate fastagent.secrets.yaml
-secrets_content = f"""
+    # Generate fastagent.secrets.yaml
+    secrets_content = f"""
 # filepath: /Users/ujjwal/Documents/starkhack/trade-agent/fastagent.secrets.yaml
 # FastAgent Secrets Configuration
 # WARNING: Keep this file secure and never commit to version control
@@ -66,24 +67,24 @@ anthropic:
 mcp:
     servers:
 """
-for agent in config["agents"]:
-    for mcp in agent["mcps"]:
-        if not 'mcp_env' in mcp:
-            continue
-        secrets_content += f"""
+    for agent in config["agents"]:
+        for mcp in agent["mcps"]:
+            if not 'mcp_env' in mcp:
+                continue
+            secrets_content += f"""
         {mcp['mcp_name']}:
             env:"""
-        for key, value in mcp['mcp_env'].items():
-            secrets_content += f"""
+            for key, value in mcp['mcp_env'].items():
+                secrets_content += f"""
                 {key}: {value}
 """
 
-# Write fastagent.secrets.yaml
-with open("generated/fastagent.secrets.yaml", "w") as secrets_file:
-    secrets_file.write(secrets_content)
+    # Write fastagent.secrets.yaml
+    with open(f"{base_path}/fastagent.secrets.yaml", "w") as secrets_file:
+        secrets_file.write(secrets_content)
 
-# Generate fastagent.config.yaml
-config_content = f"""
+    # Generate fastagent.config.yaml
+    config_content = f"""
 # filepath: /Users/ujjwal/Documents/starkhack/trade-agent/fastagent.config.yaml
 # FastAgent Configuration File
 
@@ -98,16 +99,19 @@ logger:
 mcp:
     servers:
 """
-for agent in config["agents"]:
-    for mcp in agent["mcps"]:
-        config_content += f"""
+    for agent in config["agents"]:
+        for mcp in agent["mcps"]:
+            config_content += f"""
         {mcp['mcp_name']}:
             command: "{mcp['mcp_command']}"
             args: {mcp['mcp_args']}
 """
 
-# Write fastagent.config.yaml
-with open("generated/fastagent.config.yaml", "w") as config_file:
-    config_file.write(config_content)
+    # Write fastagent.config.yaml
+    with open(f"{base_path}/fastagent.config.yaml", "w") as config_file:
+        config_file.write(config_content)
 
-print("Files generated successfully!")
+    print("Files generated successfully!")
+
+if __name__ == "__main__":
+    generate_agent_code(config)
