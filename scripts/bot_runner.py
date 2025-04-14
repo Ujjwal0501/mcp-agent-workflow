@@ -7,15 +7,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+from fastapi import Request
+import tempfile
+
+from generator import generate_agent_code
 
 proc_list = []
 
-def run_script(script_path):
+def run_script(script_path, base_path):
     """Function to run a Python script."""
     try:
-        stdout_file = open("stdout.log", "w")
-        stderr_file = open("stderr.log", "w")
-        stdin_file = open("stdin.log", "r+")
+        stdout_file = open(f"{base_path}/stdout.log", "w")
+        stderr_file = open(f"{base_path}/stderr.log", "w")
+        stdin_file = open(f"{base_path}/stdin.log", "w")
         stdin_file.truncate(0)  # Erase contents of stdin.log
         stdout_file.truncate(0)  # Erase contents of stdout.log
         stderr_file.truncate(0)  # Erase contents of stderr.log
@@ -29,9 +33,9 @@ def run_script(script_path):
     except Exception as e:
         print(f"Failed to run script: {e}")
 
-def monitor_script(script_path):
+def monitor_script(script_path, base_path):
     """Function to start and monitor a Python script in a separate thread."""
-    thread = threading.Thread(target=run_script, args=(script_path,))
+    thread = threading.Thread(target=run_script, args=(script_path, base_path))
     thread.start()
 
 app = FastAPI()
@@ -81,10 +85,27 @@ async def stop_script():
 @app.post("/start/")
 async def stop_script():
     try:
-        monitor_script("src/agent.py")
+        monitor_script("src/agent.py", "src")
         return {"message": "Script started successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to stop script: {e}")
+
+@app.post("/generate/")
+async def stop_script(cidr: str, request: Request):
+    """Start a script with the given CIDR."""
+    print(f"Starting script with CIDR: {cidr}")
+    try:
+        payload = await request.json()
+        temp_dir = tempfile.mkdtemp(dir="/tmp")
+        script_path = f"{temp_dir}/orchestrator.py"
+        print(f"Script path: {script_path}")
+
+        generate_agent_code(payload, base_path=temp_dir)
+        monitor_script(script_path, temp_dir)
+
+        return {"message": "Script started successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate script: {e}")
 
 if __name__ == "__main__":
     # script_to_run = "src/agent.py"  # Replace with the path to your script
