@@ -67,8 +67,40 @@ async def script_input(input_data: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write input: {e}")
 
+@app.post("/stop-all/")
+async def stop_script():
+    try:
+        for proc in proc_list:
+            proc.terminate()
+            proc.wait()  # Wait for the process to terminate
+        proc_list.clear()  # Clear the list of processes
+        return {"message": "Script stopped successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to stop script: {e}")
+
+@app.post("/start/")
+async def stop_script():
+    try:
+        monitor_script("src/agent.py")
+        return {"message": "Script started successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to stop script: {e}")
 
 if __name__ == "__main__":
-    script_to_run = "src/agent.py"  # Replace with the path to your script
-    monitor_script(script_to_run)
+    # script_to_run = "src/agent.py"  # Replace with the path to your script
+    # monitor_script(script_to_run)
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Shutting down gracefully...")
+        for proc in proc_list:
+            proc.terminate()
+            proc.wait()
+        uvicorn_server = threading.enumerate()
+        for thread in uvicorn_server:
+            if thread.name == "MainThread":
+                thread.join(timeout=1)
+        print("All processes terminated.")
