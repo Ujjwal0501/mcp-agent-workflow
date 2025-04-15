@@ -1,2 +1,6 @@
 asyncio
-mcp-agent
+websockets
+uvicorn
+uv
+fastapi
+fast-agent-mcp
