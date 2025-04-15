@@ -96,7 +96,7 @@ async def stop_script():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to stop script: {e}")
 
-@app.post("/generate/")
+@app.post("/generate/{cidr}")
 async def stop_script(cidr: str, request: Request):
     """Start a script with the given CIDR."""
     print(f"Starting script with CIDR: {cidr}")
