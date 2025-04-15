@@ -29,7 +29,7 @@ def run_script(script_path, base_path):
             stderr=stderr_file,
             stdin=stdin_file
         )
-        proc_list.append(process)
+        proc_list.append((process, base_path))
     except Exception as e:
         print(f"Failed to run script: {e}")
 
@@ -53,19 +53,25 @@ app.add_middleware(
 class ScriptInput(BaseModel):
     script_path: str
 
-@app.get("/stdout/")
-async def script_output():
+@app.get("/stdout/{id}")
+async def script_output(id: int):
+    if id >= len(proc_list):
+        raise HTTPException(status_code=404, detail="Process not found")
     try:
-        with open("stdout.log", "r") as stdout_file:
+        pdir = proc_list[id][1]
+        with open(f"{pdir}/stdout.log", "r") as stdout_file:
             stdout_val = stdout_file.read()
         return {"stdout": stdout_val.encode()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to run script: {e}")
 
-@app.post("/stdin/")
-async def script_input(input_data: str):
+@app.post("/stdin/{id}")
+async def script_input(id: int, input_data: str):
+    if id >= len(proc_list):
+        raise HTTPException(status_code=404, detail="Process not found")
     try:
-        with open("stdin.log", "a") as stdin_file:
+        pdir = proc_list[id][1]
+        with open(f"{pdir}/stdin.log", "a") as stdin_file:
             stdin_file.write(input_data)
         return {"message": "Input written to stdin.log successfully"}
     except Exception as e:
