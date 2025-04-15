@@ -38,7 +38,7 @@ async def main() -> None:
         # The orchestrator can be used just like any other agent
         task = \"\"\"{config["orchestrator"]["task"]}\"\"\"
 
-        await agent.interactive()
+        await agent.orchestrate(task)
 
 
 if __name__ == "__main__":
