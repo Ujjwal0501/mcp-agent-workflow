@@ -125,7 +125,4 @@ if __name__ == "__main__":
             proc.terminate()
             proc.wait()
         uvicorn_server = threading.enumerate()
-        for thread in uvicorn_server:
-            if thread.name == "MainThread":
-                thread.join(timeout=1)
         print("All processes terminated.")
