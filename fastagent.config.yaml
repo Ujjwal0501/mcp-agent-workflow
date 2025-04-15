@@ -32,6 +32,9 @@ logger:
 # MCP Servers
 mcp:
     servers:
+        brave:
+            command: "npx"
+            args: ["-y", "@modelcontextprotocol/server-brave"]
         fetch:
             command: "uvx"
             args: ["mcp-server-fetch"]
@@ -47,3 +50,15 @@ mcp:
         ekubu:
             command: "/Users/ujjwal/.nvm/versions/node/v23.10.0/bin/node"
             args: ["/Users/ujjwal/Documents/starkhack/ekubu-mcp/main.ts"]
+        # calendar:
+        #     command: "npx"
+        #     args: ["-y", "@gongrzhe/server-calendar-mcp"]
+        notion:
+            command: "python"
+            args: ["-m", "notion_api_mcp"]
+        # starknet:
+        #     command: "npx"
+        #     args: ["/Users/ujjwal/Documents/starkhack/starknet-mpc1/index.ts"]
+        paradex:
+            command: "python"
+            args: ["-m", "mcp_paradex"]

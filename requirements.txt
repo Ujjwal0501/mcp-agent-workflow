@@ -5,3 +5,4 @@ uv
 fastapi
 fast-agent-mcp
 git+https://github.com/pbohannon/notion-api-mcp.git#notion_api_mcp
+git+https://github.com/sv/mcp-paradex-py.git#mcp_paradex
