@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import uvicorn
 from fastapi import Request
 import tempfile
+import os
 
 from generator import generate_agent_code
 
@@ -19,10 +20,9 @@ def run_script(script_path, base_path):
     try:
         stdout_file = open(f"{base_path}/stdout.log", "w")
         stderr_file = open(f"{base_path}/stderr.log", "w")
-        stdin_file = open(f"{base_path}/stdin.log", "w")
-        stdin_file.truncate(0)  # Erase contents of stdin.log
-        stdout_file.truncate(0)  # Erase contents of stdout.log
-        stderr_file.truncate(0)  # Erase contents of stderr.log
+        if not os.path.exists(f"{base_path}/stdin.log"):
+            open(f"{base_path}/stdin.log", "w").close()
+        stdin_file = open(f"{base_path}/stdin.log", "r")
         process = subprocess.Popen(
             ['python', script_path],
             stdout=stdout_file,
@@ -80,7 +80,7 @@ async def script_input(id: int, input_data: str):
 @app.post("/stop-all/")
 async def stop_script():
     try:
-        for proc in proc_list:
+        for proc, bp in proc_list:
             proc.terminate()
             proc.wait()  # Wait for the process to terminate
         proc_list.clear()  # Clear the list of processes
@@ -109,13 +109,11 @@ async def stop_script(cidr: str, request: Request):
         generate_agent_code(payload, base_path=temp_dir)
         monitor_script(script_path, temp_dir)
 
-        return {"message": "Script started successfully"}
+        return {"message": "Script started successfully", "id": len(proc_list)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate script: {e}")
 
 if __name__ == "__main__":
-    # script_to_run = "src/agent.py"  # Replace with the path to your script
-    # monitor_script(script_to_run)
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
     try:
@@ -123,7 +121,7 @@ if __name__ == "__main__":
             time.sleep(1)
     except KeyboardInterrupt:
         print("Shutting down gracefully...")
-        for proc in proc_list:
+        for proc, bp in proc_list:
             proc.terminate()
             proc.wait()
         uvicorn_server = threading.enumerate()

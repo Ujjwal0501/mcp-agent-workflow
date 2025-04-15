@@ -1,9 +1,6 @@
 import json
 import os
-
-# Load the config.json file
-with open("config.json", "r") as config_file:
-    config = json.load(config_file)
+import sys
 
 def generate_agent_code(config, base_path="generated"):
     # Generate orchestrator.py
@@ -41,7 +38,7 @@ async def main() -> None:
         # The orchestrator can be used just like any other agent
         task = \"\"\"{config["orchestrator"]["task"]}\"\"\"
 
-        await agent.orchestrate(task)
+        await agent.interactive()
 
 
 if __name__ == "__main__":
@@ -114,4 +111,13 @@ mcp:
     print("Files generated successfully!")
 
 if __name__ == "__main__":
+    # Load the config.json file
+    if len(sys.argv) < 2:
+        print("Usage: python generator.py <config_path>")
+        sys.exit(1)
+
+    config_path = sys.argv[1]
+    with open(config_path, "r") as config_file:
+        config = json.load(config_file)
+
     generate_agent_code(config)
