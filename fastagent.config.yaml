@@ -42,8 +42,8 @@ mcp:
             command: "npx"
             args: ["-y", "@enescinar/twitter-mcp"]
         google:
-            command: "docker"
-            args: ["run", "-i", "--rm", "-e", "GOOGLE_MAPS_API_KEY", "mcp/google-maps"]
+            command: "npx"
+            args: ["-y", "@modelcontextprotocol/server-google-maps"]
         ekubu:
             command: "/Users/ujjwal/.nvm/versions/node/v23.10.0/bin/node"
             args: ["/Users/ujjwal/Documents/starkhack/ekubu-mcp/main.ts"]
