@@ -20,12 +20,12 @@ logger:
 
     
     # Switch the progress display on or off
-    progress_display: true
+    progress_display: false
 
     # Show chat User/Assistant messages on the console
     show_chat: true
     # Show tool calls on the console
-    show_tools: true
+    show_tools: false
     # Truncate long tool responses on the console 
     truncate_tools: true
 
@@ -34,7 +34,7 @@ mcp:
     servers:
         brave:
             command: "npx"
-            args: ["-y", "@modelcontextprotocol/server-brave"]
+            args: ["-y", "@modelcontextprotocol/server-brave-search"]
         fetch:
             command: "uvx"
             args: ["mcp-server-fetch"]

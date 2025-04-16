@@ -105,6 +105,8 @@ async def stop_script(cidr: str, request: Request):
         temp_dir = tempfile.mkdtemp(dir="/tmp")
         script_path = f"{temp_dir}/orchestrator.py"
         print(f"Script path: {script_path}")
+        with open(f"{temp_dir}/request.log", "w") as log_file:
+            log_file.write(f"Payload: {payload}\n")
 
         generate_agent_code(payload, base_path=temp_dir)
         monitor_script(script_path, temp_dir)

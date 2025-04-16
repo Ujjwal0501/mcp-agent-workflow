@@ -25,7 +25,6 @@ fast = FastAgent("Orchestrator-Workers")
             the closest match to a user's request, make the appropriate tool calls, 
             and return the URI and CONTENTS of the closest match.""",
     servers=["fetch", "filesystem"],
-    model="gpt-4o",
 )
 @fast.agent(
     name="writer",
@@ -40,13 +39,14 @@ fast = FastAgent("Orchestrator-Workers")
             Identify any awkward phrasing or structural issues that could improve clarity. 
             Provide detailed feedback on corrections.""",
     servers=["fetch"],
-    model="gpt-4o",
 )
 # Define the orchestrator to coordinate the other agents
 @fast.orchestrator(
     name="orchestrate",
     agents=["finder", "writer", "proofreader"],
     plan_type="full",
+    human_input=True,
+    max_iterations=1,
 )
 async def main() -> None:
     async with fast.run() as agent:
@@ -63,6 +63,8 @@ async def main() -> None:
         Write the graded report to graded_report.md in the same directory as short_story.md"""
 
         await agent.orchestrate(task)
+    while True:
+        await agent.interactive()
 
 
 if __name__ == "__main__":
