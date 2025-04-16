@@ -39,6 +39,7 @@ async def main() -> None:
         task = \"\"\"{config["orchestrator"]["task"]}\"\"\"
 
         await agent.orchestrate(task)
+        await agent.interactive()
 
 
 if __name__ == "__main__":
@@ -88,9 +89,9 @@ mcp:
 default_model: {config["agents"][0]["model"]}
 
 logger:
-    progress_display: true
+    progress_display: false
     show_chat: true
-    show_tools: true
+    show_tools: false
     truncate_tools: true
 
 mcp:
