@@ -30,8 +30,10 @@ fast = FastAgent("Orchestrator-Workers")
 # Define the orchestrator to coordinate the other agents
 @fast.orchestrator(
     name="orchestrate",
+    instruction="Have minumum number of steps to accomplish the task while deciding the plan as speed is crucial, avoid unnecessary steps",
     agents={[agent['agent'] for agent in config["agents"]]},
     plan_type="full",
+    max_iterations=1,
 )
 async def main() -> None:
     async with fast.run() as agent:
@@ -74,7 +76,7 @@ mcp:
             env:"""
             for key, value in mcp['mcp_env'].items():
                 secrets_content += f"""
-                {key}: {value}
+                {key}: \"{value}\"
 """
 
     # Write fastagent.secrets.yaml
@@ -86,7 +88,7 @@ mcp:
 # filepath: /Users/ujjwal/Documents/starkhack/trade-agent/fastagent.config.yaml
 # FastAgent Configuration File
 
-default_model: {config["agents"][0]["model"]}
+default_model: "claude-3-7-sonnet-latest"
 
 logger:
     progress_display: false

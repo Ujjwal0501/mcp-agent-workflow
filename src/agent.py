@@ -16,6 +16,7 @@ fast = FastAgent("FastAgent Example")
     # "calendar",
     "notion",
     # "starknet",
+    "paradex",
 ])
 
 async def main():

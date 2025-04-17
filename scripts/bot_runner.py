@@ -27,7 +27,8 @@ def run_script(script_path, base_path):
             ['python', script_path],
             stdout=stdout_file,
             stderr=stderr_file,
-            stdin=stdin_file
+            stdin=stdin_file,
+            cwd=base_path
         )
         proc_list.append((process, base_path))
     except Exception as e:
@@ -66,6 +67,7 @@ async def script_output(id: int):
         raise HTTPException(status_code=500, detail=f"Failed to run script: {e}")
 
 @app.post("/stdin/{id}")
+@app.get("/stdin/{id}")
 async def script_input(id: int, input_data: str):
     if id >= len(proc_list):
         raise HTTPException(status_code=404, detail="Process not found")
